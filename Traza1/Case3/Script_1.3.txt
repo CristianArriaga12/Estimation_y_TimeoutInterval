@@ -1,0 +1,29 @@
+Caso 3: 
+(α2< α,β2< β)
+α1 = 1/9 ~ 0.111
+β1 = 1/6 ~ 0.166
+ 
+    awk ' {alpha=0.111} {if(NR!=1){ EstimatedRTT=((1-alpha)*EstimatedRTT)+(alpha*$1) } else{ EstimatedRTT=$1 }} {$2=EstimatedRTT} {SampleRTT = $1+"  \t  "} {print SampleRTT,$2}' hop02.txt > Estimated_1_3.txt 
+
+    awk '{beta=0.166}{if(NR!=1){DevRTT=((1-beta)*DevRTT)+(beta*sqrt(($1-$2)*($1-$2)))}else{DevRTT=($1/2)}}{$3=DevRTT}{SampleRTT = $1+"  \t  "}{EstimatedRTT = $2+"  \t  "}{print SampleRTT,EstimatedRTT,$3}'  Estimated_1_3.txt > DevRTT_1_3.txt
+
+    awk '{TimeOutInterval=$2+(4*$3)} {$4=TimeOutInterval}{print}' DevRTT_1_3.txt > TimeOutInterval_1_3.txt
+
+
+    awk '{if(NR>=100 && NR <= 130){ print }}'  TimeOutInterval_1_3.txt > TimeOutInterval_1_3_1.txt
+    
+Case 3: 
+    load TimeOutInterval_1_3_1.txt 
+    hold on
+    SampleRTT = plot(TimeOutInterval_1_3_1(:,1),'-s r','LineWidth',1)
+
+    EstimatedRTT = plot(TimeOutInterval_1_3_1(:,2),'-s b','LineWidth',1)
+
+    TimeoutInterval = plot (TimeOutInterval_1_3_1(:,4),'-s g', 'LineWidth',1)
+
+    legend('SampleRTT','EstimatedRTT','TimeOutInterval')
+    grid on
+    hold off
+    xlabel("Tiempo[s]")
+    ylabel("Round Trip-Time [ms]")
+    print -dpng "Case3.png"    
